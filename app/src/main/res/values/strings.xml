@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">GRAY</string>
+
+    <string name="facebook_app_id">734595024640094</string>
+    <string name="facebook_token">1OMWdyKA8qeTf8CD4uHCNEg3BpE</string>
+    <string name="apps_dev_key">uPjbSkXd7jnHSjeQuCgNn8</string>
+    <string name="one_signal_key">de6eb3b4-2a7f-4739-97ca-78c7d0188e5a</string>
+</resources>
