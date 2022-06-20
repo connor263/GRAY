@@ -1,5 +1,6 @@
 package com.conboi.gray
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -20,8 +21,6 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.IOException
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -38,14 +37,17 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     private val observer: (WebLink.Builder) -> Observer<MutableMap<String, Any>> = { builder ->
-        Observer {
+        Log.d("TAG", "Observer init: ")
+      Observer<MutableMap<String, Any>> {
             for ((key, value) in it) {
                 when (key) {
                     "campaign" -> builder.Af().setCampaign(value.toString())
                     "media_source" -> builder.Af().setMediaSource(value.toString())
                     "af_channel" -> builder.Af().setAfChannel(value.toString())
                 }
+
             }
+            Log.d("TAG", "Observer: ")
             build(builder)
         }
     }
@@ -68,16 +70,20 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initApp() {
+        Log.d("TAG", "initApp: ")
         val builder = WebLink.Builder(this, zeusServiceRepositoryImpl, cacheLinkRepositoryImpl)
         builder.init()?.let { cacheLink ->
+            Log.d("TAG", "initApp cache: $cacheLink")
             navigateToWeb(cacheLink)
             return
         }
+        Log.d("TAG", "initApp: observe")
         afLiveData.observe(this, observer(builder))
     }
 
     private fun build(builder: WebLink.Builder) {
         afLiveData.removeObserver(observer(builder))
+        Log.d("TAG", "build: ")
         Thread {
             try {
                 val offerLink = builder.build().collectedLink
@@ -100,6 +106,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun navigateToWeb(link: String) {
-        viewModel.route = "web/${URLEncoder.encode(link, StandardCharsets.UTF_8.toString())}"
+        Intent(this, WebActivity::class.java).run {
+            startActivity(this)
+        }
     }
 }

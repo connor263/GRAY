@@ -13,30 +13,34 @@ class ZeusServiceRepositoryImpl @Inject constructor(
     private val httpClient: OkHttpClient
 ) : ZeusServiceRepository {
     override fun getLink(buildLink: String): String {
-        val request: Request = Request.Builder()
+        val okHttpRequest: Request = Request.Builder()
             .url(buildLink)
             .build()
 
-        httpClient.newCall(request).execute().use { response ->
-            Log.d("TAG", "getLink: ${response.body}")
-            val body = response.body!!.toString()
-            val json = JSONObject(body)
-            var link = ""
-            var msg = ""
+        val call = httpClient.newCall(okHttpRequest)
 
-            //сервер возвращает один вариант (offerLink - если не бот / msg - если бот)
-            try {
-                link = json["offerLink"].toString()
-            } catch (e: Exception) {
-                Log.e("Exception", e.toString())
-            }
-            try {
-                msg = json["msg"].toString()
-            } catch (e: Exception) {
-                Log.e("Exception", e.toString())
-            }
-
-            return link.ifBlank { msg }
+        call.execute().use { response ->
+            val json = JSONObject(response.body!!.toString())
+            Log.d("TAG", "getLink json: $json")
+            return processResponse(json)
         }
+    }
+
+    private fun processResponse(json: JSONObject): String {
+        var link = ""
+        var msg = ""
+
+        try {
+            link = json["offerLink"].toString()
+        } catch (e: Exception) {
+            Log.e("Exception", e.toString())
+        }
+        try {
+            msg = json["msg"].toString()
+        } catch (e: Exception) {
+            Log.e("Exception", e.toString())
+        }
+
+        return link.ifBlank { msg }
     }
 }

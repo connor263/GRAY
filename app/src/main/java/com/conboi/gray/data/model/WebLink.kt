@@ -3,8 +3,8 @@ package com.conboi.gray.data.model
 import android.content.Context
 import android.provider.Settings
 import android.util.Log
-import com.conboi.gray.interfaces.CacheLinkRepository
-import com.conboi.gray.interfaces.ZeusServiceRepository
+import com.conboi.gray.data.source.local.repo.CacheLinkRepositoryImpl
+import com.conboi.gray.data.source.remote.repo.ZeusServiceRepositoryImpl
 import com.conboi.gray.utils.AppIDs
 import com.facebook.FacebookSdk
 import com.facebook.applinks.AppLinkData
@@ -22,8 +22,8 @@ data class WebLink(val collectedLink: String?) {
 
     class Builder(
         private val context: Context,
-        private val zeusServiceRepositoryImpl: ZeusServiceRepository,
-        private val cacheLinkRepositoryImpl: CacheLinkRepository
+        private val zeusServiceRepositoryImpl: ZeusServiceRepositoryImpl,
+        private val cacheLinkRepositoryImpl: CacheLinkRepositoryImpl
     ) {
         var collectedLink: String? = null
 
@@ -108,12 +108,14 @@ data class WebLink(val collectedLink: String?) {
 
 
             collectedLink = zeusServiceRepositoryImpl.getLink(buildRequestUrl)
-            Log.d("TAG", "build: $collectedLink")
+
             if(collectedLink != "poshel nahui"){
                 cacheLinkRepositoryImpl.saveLink(collectedLink!!)
             }else{
                 collectedLink = null
             }
+
+            Log.d("TAG", "build: $collectedLink")
             return WebLink(this)
         }
 

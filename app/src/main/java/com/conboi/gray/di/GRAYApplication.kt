@@ -14,6 +14,7 @@ import javax.inject.Inject
 class GRAYApplication : Application() {
     @Inject
     lateinit var afLiveData: MutableLiveData<MutableMap<String, Any>>
+
     override fun onCreate() {
         super.onCreate()
 
