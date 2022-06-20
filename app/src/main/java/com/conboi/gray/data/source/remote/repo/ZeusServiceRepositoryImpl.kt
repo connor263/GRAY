@@ -13,34 +13,22 @@ class ZeusServiceRepositoryImpl @Inject constructor(
     private val httpClient: OkHttpClient
 ) : ZeusServiceRepository {
     override fun getLink(buildLink: String): String {
-        val okHttpRequest: Request = Request.Builder()
+        val call = Request.Builder()
             .url(buildLink)
             .build()
+            .run {
+                httpClient.newCall(this)
+            }
 
-        val call = httpClient.newCall(okHttpRequest)
+        val response = call.execute()
+        val responseBody = response.body?.toString() ?: ""
+        val json = JSONObject(responseBody)
+        Log.d("TAG", "getLink json: $json")
 
-        call.execute().use { response ->
-            val json = JSONObject(response.body!!.toString())
-            Log.d("TAG", "getLink json: $json")
-            return processResponse(json)
-        }
-    }
+        val result = if (json.has("offerLink")) {
+            json["offerLink"].toString()
+        } else json["msg"].toString()
 
-    private fun processResponse(json: JSONObject): String {
-        var link = ""
-        var msg = ""
-
-        try {
-            link = json["offerLink"].toString()
-        } catch (e: Exception) {
-            Log.e("Exception", e.toString())
-        }
-        try {
-            msg = json["msg"].toString()
-        } catch (e: Exception) {
-            Log.e("Exception", e.toString())
-        }
-
-        return link.ifBlank { msg }
+        return result
     }
 }
